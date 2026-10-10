@@ -49,3 +49,11 @@ nav .past { color: var(--accent); cursor: pointer; text-decoration: underline; }
 .preview img { display: block; margin: 8px auto; border-radius: 4px; max-width: 100%; }
 footer { text-align: center; margin-top: 30px; }
 @media (max-width: 480px) { .btn.big-btn { padding: 12px 10px; font-size: 15px; } }
+.swatches { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+.swatches input[type=color] { width: 30px; height: 30px; border: none; background: none; cursor: pointer; }
+.coverThumb { height: 60px; border-radius: 4px; }
+.form label.check { font-size: 14px; color: var(--muted); }
+.preview .entry p.ind { text-indent: 1.5em; margin-top: 0; }
+.preview .entry p { margin: 2px 0; }

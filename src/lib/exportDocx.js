@@ -133,7 +133,7 @@ export async function buildDocx(entries, keptPhotos, opts = {}, onProgress = () 
       new Paragraph({
         keepNext: true,
         spacing: { before: mm(5), after: mm(1) },
-        children: [new TextRun({ text: dayHeading(e.date), font: FONT, size: o.dayPt * 2, bold: true, color: o.accent })],
+        children: [new TextRun({ text: (e.heading || dayHeading(e.date)), font: FONT, size: o.dayPt * 2, bold: true, color: o.accent })],
       })
     )
 

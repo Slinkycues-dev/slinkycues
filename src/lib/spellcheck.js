@@ -40,16 +40,93 @@ function editDistance(a, b) {
   return d[m][n]
 }
 
-// Things we deliberately never flag: slang, elongations, names, hashtags, urls, numbers.
-function looksIntentional(word, raw, wordFreq) {
-  if (word.length < 4) return true // "teh" is annoying but short words give too many false positives
-  if (/(.)\1\1/.test(word)) return true // soooo, yesss, hahaha
-  if (/^(ha|he|lo)+l?$/i.test(word)) return true
+// Words that are "wrong" to the dictionary but right to the author. Grows via learnWord().
+const SLANG = new Set(`
+sesh scran scranning delish merch bestie besties girlies neek neeky hangry vlog vlogging vlogs dawg yall innit onnit
+binos lol tbh ngl cba idk bruh chun chunned chunny chunning peng ting mandem gassed buzzin buzzing lowkey highkey deffo
+defo obvs totes probs rents fam gaff bev bevs bevvies bevvy pres prinks skint chuffed knackered minging lad lads
+maccies chippy spoons uni freshers lash lashed lashing banter bants rinsed rinsing jokes jokesy sick vibey vibed vibes
+sendy sending gnarly stoked rad legend ledge schmoozing shmoozing kip kipping snus snuss snoozed cuppa brekkie brekky
+footy telly bikkie bikkies choccy chocky sarnie sarnies butty sanga avo arvo prezzie prezzies rellies rello sunnies
+trackies joggers hoodie hoodies crocs croc wellies wellie flipflops flipflop heelys heelying heelyd wheelie wheelies
+randomer randomers mutuals goodie goodies barbeque bbq queueing posset duffle watersports waterpark waterslide wakepark
+wakeboard wakeboarding wakeboarder kitesurf kitesurfing surfy surfer surfers sesh selfie selfies insta ig tiktok
+spotify playlist playlists netflix youtube vlog whatsapp whatsapped facetime facetimed uber ubered deliveroo
+haribo haribos piccie piccies earnt leant learnt dreamt spelt smelt burnt problemo sapien sapiens gottem chav chavs chavy
+manc mancs finca nada newby newbie newbies syphon syphoning syphoned breastroke strimmer strimming strimmed awol goddamnit
+goddammit skitz bint aboot chillax chillaxing puffa hmph chirpse chirpsing chirpsed vid vids gilet gilets rona ronas preggers
+outro intro intros mankini tippy kiddy kiddies kiddo urgh ugh argh rizz pinot throuple throuples tele incase swegway woop
+woops burkha burkhas samphire bougie boogie boogying boogied hola estas bien chica chicas improv wooly debreasted debreast
+shemagh shemaghs galette galettes choux voie flor como senorita senoritas hooyah strappy cous couscous housem housemate
+housemates styll stylll legit legitness sesh seshes scranned scrans bants bantz pisshead pissheads shithead bellend bellends
+wanker wankers knob knobhead twat twatted tosser tossers melt melts moist dench peng leng wavey wavy mash mashed
+sacked baccy rollie rollies vape vaped vaping lighter gazebo gazebos tinnies tinny tinnie cans pres prinks afters afterparty
+`.split(/\s+/).filter(Boolean))
+
+const deaccent = (w) => w.normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+// American spellings → the British one, offered as a fix rather than guessed at.
+const US_TO_UK = {
+  center: 'centre', color: 'colour', colors: 'colours', favorite: 'favourite', favorites: 'favourites', traveler: 'traveller',
+  travelers: 'travellers', traveling: 'travelling', gray: 'grey', liter: 'litre', liters: 'litres', jewelry: 'jewellery',
+  anesthesia: 'anaesthesia', synchronized: 'synchronised', organized: 'organised', realized: 'realised', recognized: 'recognised',
+  realize: 'realise', organize: 'organise', recognize: 'recognise', neighbor: 'neighbour', neighbors: 'neighbours', humor: 'humour',
+  flavor: 'flavour', flavors: 'flavours', theater: 'theatre', meter: 'metre', meters: 'metres', pajamas: 'pyjamas', mom: 'mum',
+  airplane: 'aeroplane', aluminum: 'aluminium', defense: 'defence', license: 'licence', practicing: 'practising', catalog: 'catalogue',
+  program: 'programme', apologize: 'apologise', apologized: 'apologised', cozy: 'cosy', donut: 'doughnut', donuts: 'doughnuts',
+}
+const US_OK = new Set(['advisor', 'focused', 'focussed', 'yoghurt', 'yogurt', 'foetus', 'mediaeval', 'medieval', 'barbeque', 'queueing'])
+
+const cap = (w) => w[0].toUpperCase() + w.slice(1)
+
+function isWord(spell, w) {
+  return w.length > 1 && (spell.correct(w) || spell.correct(cap(w)) || SLANG.has(w))
+}
+
+// word differs from sugg only by a trailing s/es, or by a regular suffix on a real stem
+function trivialVariant(word, sugg) {
+  const strip = (w) => w.replace(/(es|s)$/, '')
+  return strip(word) === strip(sugg)
+}
+function suffixOfKnownStem(spell, word, sugg) {
+  const m = word.match(/^(.{3,}?)(ing|ed|er|ers|s|es|y|ey|ies)$/)
+  if (!m) return false
+  const stem = m[1], suf = m[2]
+  const known = isWord(spell, stem) || isWord(spell, stem + 'e') || SLANG.has(stem)
+  if (!known) return false
+  // but a missed doubled consonant (preping→prepping, stoping→stopping) is a real slip: keep flagging that
+  if (sugg && sugg === stem + stem[stem.length - 1] + suf) return false
+  return true
+}
+
+// Things we deliberately never flag: slang, elongations, names, hashtags, urls, numbers, compounds.
+function looksIntentional(word, raw, wordFreq, spell) {
+  if (word.length < 4) return true // short words give too many false positives
+  if (SLANG.has(word) || US_OK.has(word)) return true
+  if (spell.correct(cap(word))) return true // a name/place/brand written lowercase: monet, chanel, korean
+  if (deaccent(word) !== word && isWord(spell, deaccent(word))) return true // fiancé, café
+  if (/'s$/.test(word) && isWord(spell, word.slice(0, -2))) return true // whoever's, driving's
+  if (/(.)\1\1/.test(word)) return true // soooo, yesss
+  if (/(ha|he|ah|eh){2,}/.test(word)) return true // hahaha, bahaha, ahaha, heheh
   if (/[0-9@#_]/.test(raw)) return true
   if (/^[A-Z]/.test(raw)) return true // names, nicknames, places
   if (/[A-Z].*[A-Z]/.test(raw)) return true
   if ((wordFreq.get(word) || 0) >= 3) return true // used repeatedly = your vocabulary
+  // dropped-g verbs: earnin, shaggin, buzzin
+  if (/in$/.test(word) && isWord(spell, word + 'g')) return true
+  // compounds of two real words: washbag, wakeup, clearup, anyday, forkload
+  for (let i = 3; i <= word.length - 3; i++) {
+    if (isWord(spell, word.slice(0, i)) && isWord(spell, word.slice(i))) return true
+  }
   return false
+}
+
+// A plausible slip keeps the first letter and isn't just a possessive/plural shuffle.
+function plausibleFix(word, sugg) {
+  if (word[0] !== sugg[0]) return false
+  if (word.replace(/'s$/, '') === sugg.replace(/'s$/, '')) return false
+  if (sugg.endsWith("'s") && !word.includes("'")) return false
+  return true
 }
 
 /**
@@ -61,7 +138,7 @@ function looksIntentional(word, raw, wordFreq) {
 export function findTypos(entries, spell) {
   const learned = getLearned()
   const wordFreq = new Map()
-  const tokenRe = /[A-Za-z][A-Za-z']*[A-Za-z]|[A-Za-z]/g
+  const tokenRe = /\p{L}[\p{L}'’]*\p{L}|\p{L}/gu
 
   for (const e of entries) {
     const text = `${e.caption}\n${e.extra}`
@@ -78,14 +155,26 @@ export function findTypos(entries, spell) {
       const text = e[field] || ''
       for (const m of text.matchAll(tokenRe)) {
         const raw = m[0]
-        const word = raw.toLowerCase()
+        const word = raw.toLowerCase().replace(/’/g, "'")
         if (learned.has(word)) continue
-        if (spell.correct(raw) || spell.correct(word)) continue
-        if (looksIntentional(word, raw, wordFreq)) continue
-        const sugg = spell
-          .suggest(word)
-          .map((s) => s.toLowerCase())
-          .filter((s) => s !== word && editDistance(word, s) <= 1)
+        let sugg
+        if (US_TO_UK[word]) sugg = [US_TO_UK[word]]
+        else {
+          if (spell.correct(raw) || spell.correct(word)) continue
+          if (looksIntentional(word, raw, wordFreq, spell)) continue
+          sugg = spell
+            .suggest(word)
+            .map((s) => s.toLowerCase())
+            .filter(
+              (s) =>
+                s !== word &&
+                editDistance(word, s) <= (word.length >= 7 ? 2 : 1) &&
+                plausibleFix(word, s) &&
+                !trivialVariant(word, s) &&
+                !s.includes(' ')
+            )
+          if (sugg.length && suffixOfKnownStem(spell, word, sugg[0])) continue
+        }
         if (!sugg.length) continue
         // keep capitalisation of the original if it had any
         const suggestion = raw[0] === raw[0].toUpperCase() && raw[0] !== raw[0].toLowerCase()
