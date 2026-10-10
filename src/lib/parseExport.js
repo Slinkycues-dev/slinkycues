@@ -15,13 +15,43 @@ export function fixEncoding(s) {
 
 const IMG_RE = /\.(jpe?g|png|webp|heic)$/i
 
+// posts_1.json (and posts_2.json…) hold the captions; plain posts.json is a different index file. Reels carry captions too.
 function isPostsFile(name) {
   const n = name.toLowerCase()
-  return /(^|\/)posts(_\d+)?\.json$/.test(n) && n.includes('content')
+  return /(^|\/)(posts_\d+|reels)\.json$/.test(n) && !n.includes('__macosx')
+}
+
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+const MONTH_RE = new RegExp(`\\b(${MONTHS.join('|')})\\b`, 'i')
+const WEEKDAY_RE = /^\W*(mon|tue|tues|wed|wednes|thu|thur|thurs|fri|sat|satur|sun)[a-z]*day\b/i
+
+/**
+ * The first line of each caption is the date you wrote ("Monday 29 December", "Day 18 February").
+ * Returns { date, heading, rest } or null when the first line isn't a date.
+ */
+export function splitDateLine(caption, postDate) {
+  const lines = caption.split('\n')
+  const first = (lines[0] || '').trim()
+  if (first.length > 60) return null
+  const mo = first.match(MONTH_RE)
+  if (!mo) return null
+  const num = first.slice(0, mo.index).match(/(?<!\d)(\d{1,2})(?!\d)/) || first.slice(mo.index).match(/(?<!\d)(\d{1,2})(?!\d)/)
+  if (!num) return null
+  const day = +num[1], month = MONTHS.indexOf(mo[1].toLowerCase())
+  if (day < 1 || day > 31) return null
+  // pick the year that puts this date nearest the post time (handles New Year posts)
+  const y = postDate.getFullYear()
+  const cands = [y - 1, y, y + 1].map((yy) => new Date(yy, month, day))
+  const date = cands.sort((a, b) => Math.abs(a - postDate) - Math.abs(b - postDate))[0]
+  const label = first.replace(/^\W+|[.\s]+$/g, '')
+  const wd = label.match(WEEKDAY_RE)?.[1]?.toLowerCase().slice(0, 3)
+  const real = date.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase().slice(0, 3)
+  const heading = wd && wd !== real ? label : null // keep your wording if the weekday disagrees with the date
+  return { date, heading, rest: lines.slice(1).join('\n').replace(/^\s*\n+/, '') }
 }
 function isCommentsFile(name) {
   const n = name.toLowerCase()
-  return /(^|\/)post_comments(_\d+)?\.json$/.test(n)
+  return /(^|\/)post_comments(_\d+)?\.json$/.test(n) && !n.includes('__macosx')
 }
 
 /**
@@ -35,9 +65,14 @@ export async function parseInstagramZip(file, onProgress = () => {}) {
 
   const postFiles = names.filter(isPostsFile)
   if (!postFiles.length) {
-    throw new Error(
-      'Could not find posts JSON in this zip. Make sure you exported in JSON format and ticked "Media" (your posts).'
-    )
+    const jsons = names.filter((n) => n.endsWith('.json')).slice(0, 12)
+    const htmls = names.filter((n) => n.endsWith('.html')).length
+    const hint = htmls && !jsons.length
+      ? 'This export is in HTML format - request it again and choose JSON.'
+      : jsons.length
+        ? `JSON files found: ${jsons.join(', ')}${names.length > 12 ? ', …' : ''}`
+        : `No JSON files in the zip at all (${names.length} files, e.g. ${names.slice(0, 5).join(', ')}).`
+    throw new Error(`Could not find the posts file in this zip. ${hint}`)
   }
 
   onProgress('Reading posts…')
@@ -84,8 +119,17 @@ export async function parseInstagramZip(file, onProgress = () => {}) {
     const media = post.media || []
     const ts = Number(post.creation_timestamp || media[0]?.creation_timestamp || 0)
     if (!ts) continue
-    const caption = fixEncoding(post.title || media[0]?.title || '')
-    const date = new Date(ts * 1000)
+    let caption = fixEncoding(post.title || media[0]?.title || '')
+    let date = new Date(ts * 1000)
+    let heading = null
+    const split = splitDateLine(caption, date)
+    if (split) {
+      date = split.date
+      heading = split.heading
+      caption = split.rest
+    } else {
+      warnings.push(`No date line on the post from ${date.toDateString()} - used the post time.`)
+    }
 
     const mediaItems = []
     for (let m = 0; m < media.length; m++) {
@@ -104,10 +148,26 @@ export async function parseInstagramZip(file, onProgress = () => {}) {
       mediaItems.push({ id: `${ts}-${m}`, uri, blob })
     }
 
-    entries.push({ id: String(ts), ts, date, caption, media: mediaItems, extra: '' })
+    entries.push({ id: String(ts), ts, postTs: ts, date, heading, caption, media: mediaItems, extra: '' })
   }
 
-  entries.sort((a, b) => a.ts - b.ts)
+  // Sort by the date you wrote, then merge anything that landed on the same day (e.g. a post and a reel)
+  entries.sort((a, b) => a.date - b.date || a.postTs - b.postTs)
+  const merged = []
+  for (const e of entries) {
+    const prev = merged[merged.length - 1]
+    if (prev && prev.date.toDateString() === e.date.toDateString()) {
+      prev.caption = [prev.caption, e.caption].filter(Boolean).join('\n')
+      prev.media.push(...e.media)
+      prev.heading = prev.heading || e.heading
+    } else merged.push(e)
+  }
+  entries.length = 0
+  entries.push(...merged)
+  for (const e of entries) {
+    e.ts = e.postTs
+    e.id = String(Math.floor(e.date.getTime() / 1000))
+  }
 
   // Attach own comments to the post they most likely continue:
   // the latest post whose timestamp is before the comment, within 3 days.
