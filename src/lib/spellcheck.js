@@ -60,6 +60,7 @@ woops burkha burkhas samphire bougie boogie boogying boogied hola estas bien chi
 shemagh shemaghs galette galettes choux voie flor como senorita senoritas hooyah strappy cous couscous housem housemate
 housemates styll stylll legit legitness sesh seshes scranned scrans bants bantz pisshead pissheads shithead bellend bellends
 wanker wankers knob knobhead twat twatted tosser tossers melt melts moist dench peng leng wavey wavy mash mashed
+cric crick styll preed preeing pres mong fook facking fackin fookin fooking madda mazza earnt leant learnt incase
 sacked baccy rollie rollies vape vaped vaping lighter gazebo gazebos tinnies tinny tinnie cans pres prinks afters afterparty
 `.split(/\s+/).filter(Boolean))
 
