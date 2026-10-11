@@ -61,6 +61,8 @@ shemagh shemaghs galette galettes choux voie flor como senorita senoritas hooyah
 housemates styll stylll legit legitness sesh seshes scranned scrans bants bantz pisshead pissheads shithead bellend bellends
 wanker wankers knob knobhead twat twatted tosser tossers melt melts moist dench peng leng wavey wavy mash mashed
 cric crick styll preed preeing pres mong fook facking fackin fookin fooking madda mazza earnt leant learnt incase
+chaud unpisted cheffing yonked aime stfu cmon soya appaz pisteur pisteurs bnoc demi argy fomo fuckk spag jorts skidoos miso yoghurts parapente speedos bruv empath gauping piccy dont flubber deets catchup lols sensical bain bouy unstack biitch criss propellor ooah habal moto stig stinkiness noob snuck menty chez birks lasagna foetal knicks knowledgable hella fack disheveled chocolat crookie bday morni cheffy’s seiza trog funnyness sheek
+shat awks zoot zoots rando randos dolla rapido yeahh yeahhh nahh nahhh heyo toon brek brekky sais
 sacked baccy rollie rollies vape vaped vaping lighter gazebo gazebos tinnies tinny tinnie cans pres prinks afters afterparty
 `.split(/\s+/).filter(Boolean))
 
@@ -175,6 +177,9 @@ export function findTypos(entries, spell) {
                 !s.includes(' ')
             )
           if (sugg.length && suffixOfKnownStem(spell, word, sugg[0])) continue
+          // Only an *obvious* slip: the corrected word must be one you actually use elsewhere this year
+          // (teh → the, wiht → with). If you never write the suggested word, it is almost certainly your slang.
+          sugg = sugg.filter((s) => (wordFreq.get(s) || 0) >= 2)
         }
         if (!sugg.length) continue
         // keep capitalisation of the original if it had any
