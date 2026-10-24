@@ -15,7 +15,9 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>Slinkycues</h1>
+        <h1>
+          <a href="/" title="Back to Slinkycues" style={{ color: 'inherit', textDecoration: 'none' }}>Slinkycues</a> <span style={{ opacity: 0.5 }}>/ Diary</span>
+        </h1>
         <nav>
           {STEPS.map((s, i) => (
             <span key={s} className={i === step ? 'on' : i < step ? 'past' : ''} onClick={() => i < step && setStep(i)}>

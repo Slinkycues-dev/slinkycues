@@ -16,7 +16,7 @@ npm run dev
 ```
 
 ## Deploy (Vercel)
-Push to GitHub, import the repo at vercel.com → it auto-detects Vite. No settings needed.
+Live at **https://slinkycues.vercel.app/diary**. This repo is Vercel project `slinkycues-diary` (account slinkycues-dev); the Slinkycues hub (repo `slinkycues-dev/slinkycues-hub`, which owns slinkycues.vercel.app) proxies it in under `/diary`. That is why `vite.config.js` sets `base: '/diary/'` - keep any new asset fetches on `import.meta.env.BASE_URL`. Push to `main` to deploy.
 
 ## Layout
 - `src/lib/parseExport.js` — reads the zip, fixes Instagram's broken text encoding, attaches your own overflow comments to the right day
