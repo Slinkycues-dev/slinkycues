@@ -1,7 +1,8 @@
 :root {
-  --bg: #f6f3ee; --ink: #1f1d1a; --muted: #7a7570; --line: #e2ddd5; --card: #fff;
-  --accent: #2b5d4f; --keep: #2f8f5b; --skip: #c4473f;
-  font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--bg);
+  /* Slinkycues brand: iron grey, off-white ink, lime accent, coral/crimson for actions. */
+  --bg: #435058; --ink: #f1f2ee; --muted: #bfb7b6; --line: rgba(132,140,142,.45); --card: #3a464d;
+  --accent: #dcf763; --keep: #dcf763; --skip: #f2694b; --blue: #8ec5ff; --deep: #2f3a40;
+  font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--bg); color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -12,20 +13,20 @@ h2 { font-size: 20px; margin: 0 0 8px; }
 h3 { font-size: 16px; margin: 24px 0 8px; }
 nav { display: flex; gap: 14px; font-size: 14px; color: var(--muted); }
 nav .on { color: var(--ink); font-weight: bold; }
-nav .past { color: var(--accent); cursor: pointer; text-decoration: underline; }
+nav .past { color: var(--blue); cursor: pointer; text-decoration: underline; }
 .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
 .muted { color: var(--muted); } .small { font-size: 13px; } .big { font-size: 20px; }
 .center { text-align: center; }
 .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 36px 16px; text-align: center; transition: 0.15s; }
-.drop.drag { border-color: var(--accent); background: #eef4f1; }
-.btn { display: inline-block; border: 1px solid var(--line); background: #fff; padding: 10px 18px; border-radius: 10px; cursor: pointer; font: inherit; font-size: 15px; }
+.drop.drag { border-color: var(--accent); background: var(--deep); }
+.btn { display: inline-block; border: 1px solid var(--line); background: var(--deep); color: var(--ink); padding: 10px 18px; border-radius: 10px; cursor: pointer; font: inherit; font-size: 15px; }
 .btn:disabled { opacity: 0.4; cursor: default; }
-.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--deep); border-color: var(--accent); font-weight: bold; }
 .btn.big-btn { padding: 14px 26px; font-size: 17px; flex: 1; }
 .btn.keep { border-color: var(--keep); color: var(--keep); } .btn.skip { border-color: var(--skip); color: var(--skip); }
 .link { background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; }
 .status { color: var(--accent); } .error { color: var(--skip); }
-.warn { background: #fff6e0; border: 1px solid #f0d58a; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 14px; }
+.warn { background: var(--deep); border: 1px solid var(--skip); padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 14px; }
 .help { margin-top: 18px; font-size: 14px; } .help summary { cursor: pointer; color: var(--accent); }
 .help li { margin: 6px 0; }
 .progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 10px; }
@@ -34,13 +35,13 @@ nav .past { color: var(--accent); cursor: pointer; text-decoration: underline; }
 .card { position: relative; margin: 14px auto 0; max-width: 460px; background: #111; border-radius: 16px; overflow: hidden; touch-action: none; user-select: none; cursor: grab; box-shadow: 0 10px 30px rgba(0,0,0,0.18); transition: transform 0.08s; }
 .card.keep { outline: 4px solid var(--keep); } .card.skip { outline: 4px solid var(--skip); }
 .card img { display: block; width: 100%; max-height: 62vh; object-fit: contain; background: #111; }
-.card .cap { padding: 12px 14px; background: #fff; display: flex; flex-direction: column; gap: 4px; font-size: 14px; min-height: 70px; }
-.stamp { position: absolute; top: 20px; font-size: 32px; font-weight: bold; padding: 4px 14px; border: 4px solid; border-radius: 8px; background: rgba(255,255,255,0.85); transform: rotate(-12deg); }
+.card .cap { padding: 12px 14px; background: var(--card); display: flex; flex-direction: column; gap: 4px; font-size: 14px; min-height: 70px; }
+.stamp { position: absolute; top: 20px; font-size: 32px; font-weight: bold; padding: 4px 14px; border: 4px solid; border-radius: 8px; background: rgba(47,58,64,0.85); transform: rotate(-12deg); }
 .stamp.keep { left: 20px; color: var(--keep); border-color: var(--keep); }
 .stamp.skip { right: 20px; color: var(--skip); border-color: var(--skip); transform: rotate(12deg); }
 .done { text-align: center; padding: 30px 0; }
 .typo { margin-top: 16px; padding: 16px; background: var(--bg); border-radius: 10px; }
-.ctx { white-space: pre-wrap; line-height: 1.5; } mark { background: #ffe58a; padding: 0 2px; }
+.ctx { white-space: pre-wrap; line-height: 1.5; } mark { background: var(--accent); color: var(--deep); padding: 0 2px; }
 .form { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 14px; }
 .form label { display: flex; gap: 10px; align-items: center; font-size: 15px; }
 .form input[type=text], .form input:not([type]), .form select { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; flex: 1; }
@@ -51,7 +52,7 @@ footer { text-align: center; margin-top: 30px; }
 @media (max-width: 480px) { .btn.big-btn { padding: 12px 10px; font-size: 15px; } }
 .swatches { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-.swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+.swatch.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--deep) inset; }
 .swatches input[type=color] { width: 30px; height: 30px; border: none; background: none; cursor: pointer; }
 .coverThumb { height: 60px; border-radius: 4px; }
 .form label.check { font-size: 14px; color: var(--muted); }
