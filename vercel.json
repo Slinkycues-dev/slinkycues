@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/diary", "destination": "/index.html" },
+    { "source": "/diary/:path*", "destination": "/:path*" }
+  ]
+}
