@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { dayHeading } from '../lib/parseExport'
-import { loadDecisions, saveDecisions } from '../lib/store'
+import { loadDecisions, saveDecisions, recordProgress } from '../lib/store'
 
 export default function SwipeDeck({ entries, onDone }) {
   const cards = useMemo(
@@ -30,6 +30,7 @@ export default function SwipeDeck({ entries, onDone }) {
     const next = { ...decisions, [c.id]: keep }
     setDecisions(next)
     saveDecisions(next)
+    recordProgress(entries, next)
     setFlash(keep ? 'keep' : 'skip')
     setTimeout(() => setFlash(null), 250)
     setPos((p) => p + 1)
@@ -42,6 +43,7 @@ export default function SwipeDeck({ entries, onDone }) {
     delete next[c.id]
     setDecisions(next)
     saveDecisions(next)
+    recordProgress(entries, next)
     setPos((p) => p - 1)
   }
 

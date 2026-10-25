@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { exportDocx, DEFAULTS } from '../lib/exportDocx.js'
+import { markYearDone } from '../lib/store'
 import { monthKey, dayHeading } from '../lib/parseExport.js'
 
 const PRESETS = [
@@ -71,6 +72,7 @@ export default function Export({ entries, decisions, onRestart }) {
         { title, subtitle, song, songBadge, accent, bodyPt, dayPt: bodyPt + 1, monthPt: bodyPt + 8, photoWidthMm: photoWidth, cover, coverFull },
         setStatus
       )
+      markYearDone(year)
       setStatus('Downloaded. Drag the .docx into Google Drive and open it - it becomes a Google Doc.')
     } catch (e) {
       setStatus('Export failed: ' + e.message)

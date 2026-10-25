@@ -3,6 +3,8 @@ import Upload from './components/Upload'
 import SwipeDeck from './components/SwipeDeck'
 import SpellReview from './components/SpellReview'
 import Export from './components/Export'
+import YearTracker from './components/YearTracker'
+import { recordProgress } from './lib/store'
 
 const STEPS = ['Upload', 'Photos', 'Spell-check', 'Export']
 
@@ -29,11 +31,13 @@ export default function App() {
 
       {warnings.length > 0 && <div className="warn">{warnings.map((w) => <div key={w}>{w}</div>)}</div>}
 
+      {step === 0 && <YearTracker />}
       {step === 0 && (
         <Upload
           onLoaded={({ entries, warnings }) => {
             setEntries(entries)
             setWarnings(warnings)
+            recordProgress(entries, {})
             setStep(1)
           }}
         />

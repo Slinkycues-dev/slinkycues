@@ -58,3 +58,17 @@ footer { text-align: center; margin-top: 30px; }
 .form label.check { font-size: 14px; color: var(--muted); }
 .preview .entry p.ind { text-indent: 1.5em; margin-top: 0; }
 .preview .entry p { margin: 2px 0; }
+
+/* Year tracker */
+.years { margin: 0 0 18px; }
+.years-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.years-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.year { position: relative; overflow: hidden; min-width: 78px; padding: 8px 10px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font: inherit; cursor: pointer; text-align: left; }
+.year:hover { border-color: var(--accent); }
+.year.done { border-color: var(--accent); background: rgba(220,247,99,0.12); }
+.year.going { border-color: var(--blue); }
+.year-label { display: block; font-weight: bold; font-size: 15px; }
+.year-sub { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.year.done .year-sub { color: var(--accent); }
+.year.going .year-sub { color: var(--blue); }
+.year-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--blue); }
