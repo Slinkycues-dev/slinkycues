@@ -31,7 +31,6 @@ export default function App() {
           ))}
         </nav>
       </header>
-      <div className="backdrop-space" />
 
       {warnings.length > 0 && <div className="warn">{warnings.map((w) => <div key={w}>{w}</div>)}</div>}
 
