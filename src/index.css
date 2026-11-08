@@ -1,7 +1,7 @@
 :root {
   /* Slinkycues brand: iron grey, off-white ink, lime accent, coral/crimson for actions. */
-  --bg: #435058; --ink: #f1f2ee; --muted: #bfb7b6; --line: rgba(132,140,142,.45); --card: #3a464d;
-  --accent: #dcf763; --keep: #dcf763; --skip: #f2694b; --blue: #8ec5ff; --deep: #2f3a40;
+  --bg: #1c1510; --ink: #f2ede2; --muted: #c9bcab; --line: rgba(242,237,226,.16); --card: rgba(43,33,26,0.9);
+  --accent: #dcf763; --keep: #dcf763; --skip: #f2694b; --blue: #8ec5ff; --deep: #120d09;
   font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--bg); color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -36,7 +36,7 @@ nav .past { color: var(--blue); cursor: pointer; text-decoration: underline; }
 .card.keep { outline: 4px solid var(--keep); } .card.skip { outline: 4px solid var(--skip); }
 .card img { display: block; width: 100%; max-height: 62vh; object-fit: contain; background: #111; }
 .card .cap { padding: 12px 14px; background: var(--card); display: flex; flex-direction: column; gap: 4px; font-size: 14px; min-height: 70px; }
-.stamp { position: absolute; top: 20px; font-size: 32px; font-weight: bold; padding: 4px 14px; border: 4px solid; border-radius: 8px; background: rgba(47,58,64,0.85); transform: rotate(-12deg); }
+.stamp { position: absolute; top: 20px; font-size: 32px; font-weight: bold; padding: 4px 14px; border: 4px solid; border-radius: 8px; background: rgba(18,13,9,0.85); transform: rotate(-12deg); }
 .stamp.keep { left: 20px; color: var(--keep); border-color: var(--keep); }
 .stamp.skip { right: 20px; color: var(--skip); border-color: var(--skip); transform: rotate(12deg); }
 .done { text-align: center; padding: 30px 0; }
@@ -72,3 +72,13 @@ footer { text-align: center; margin-top: 30px; }
 .year.done .year-sub { color: var(--accent); }
 .year.going .year-sub { color: var(--blue); }
 .year-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--blue); }
+
+/* ---- Photo backdrop (shared Slinkycues look, Nov 2026) ---- */
+.backdrop { position: absolute; inset: 0 0 auto 0; height: clamp(380px, 66vh, 680px); overflow: hidden; z-index: 0; pointer-events: none; }
+.backdrop img { width: 100%; height: 100%; object-fit: cover; display: block; animation: fade-in 1s ease-out both; }
+.backdrop::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(18,13,9,0.72) 0%, rgba(18,13,9,0.35) 45%, rgba(18,13,9,0.1) 100%), linear-gradient(180deg, rgba(18,13,9,0.6) 0%, transparent 25%); }
+.backdrop::after { content: ""; position: absolute; inset: auto 0 0 0; height: 70%; z-index: 1; background: linear-gradient(180deg, transparent 0%, rgba(28,21,16,0.7) 55%, #1c1510 100%); }
+.backdrop-space { height: clamp(110px, 24vh, 240px); }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.app { position: relative; z-index: 1; }
+body { position: relative; }

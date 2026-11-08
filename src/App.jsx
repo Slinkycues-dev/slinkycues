@@ -1,3 +1,4 @@
+import Backdrop from './components/Backdrop'
 import { useState } from 'react'
 import Upload from './components/Upload'
 import SwipeDeck from './components/SwipeDeck'
@@ -15,6 +16,8 @@ export default function App() {
   const [warnings, setWarnings] = useState([])
 
   return (
+    <>
+    <Backdrop />
     <div className="app">
       <header>
         <h1>
@@ -28,6 +31,7 @@ export default function App() {
           ))}
         </nav>
       </header>
+      <div className="backdrop-space" />
 
       {warnings.length > 0 && <div className="warn">{warnings.map((w) => <div key={w}>{w}</div>)}</div>}
 
@@ -48,5 +52,6 @@ export default function App() {
 
       <footer className="muted small">Everything runs in your browser. Nothing is uploaded.</footer>
     </div>
+    </>
   )
 }
